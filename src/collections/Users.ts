@@ -178,7 +178,7 @@ const Users: CollectionConfig = {
             await req.payload.sendEmail({
               // For development with Resend testing, keep your own email
               // In production after domain verification, use: to: doc.email
-              to: 'qusairang86@gmail.com',
+              to: doc.email,
               subject: 'Your Blog CMS Account Has Been Created',
               html: `
             <div style="font-family:Arial,sans-serif;background:#f4f6f8;padding:24px;">
@@ -263,7 +263,7 @@ const Users: CollectionConfig = {
 
           try {
             await req.payload.sendEmail({
-              to: 'qusairang86@gmail.com',
+              to: doc.email, // For development with Resend testing, keep your own email. In production after domain verification, use: to: doc.email
               subject: 'New User Signup Approval Required',
               html: `
             <div style="font-family:Arial,sans-serif;background:#f4f6f8;padding:24px;">
@@ -336,7 +336,7 @@ const Users: CollectionConfig = {
             await req.payload.sendEmail({
               // For development with Resend testing, keep your own email
               // In production after domain verification, use: to: doc.email
-              to: 'qusairang86@gmail.com',
+              to: doc.email,
               subject: 'Account Approved',
               html: `
             <div style="font-family:Arial,sans-serif;background:#f4f6f8;padding:24px;">
@@ -391,7 +391,7 @@ const Users: CollectionConfig = {
             await req.payload.sendEmail({
               // For development with Resend testing, keep your own email
               // In production after domain verification, use: to: doc.email
-              to: 'qusairang86@gmail.com',
+              to: doc.email,
               subject: 'Account Rejected',
               html: `
             <div style="font-family:Arial,sans-serif;background:#f4f6f8;padding:24px;">
