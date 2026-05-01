@@ -114,7 +114,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
   const contentHtml = renderContent(post.content)
   const authorName = getAuthorName(post.author)
   const authorEmail = getAuthorEmail(post.author)
-  const readingTime = post.readingTime || 3
+  // const readingTime = post.readingTime || 3
 
   const shareUrl = `${process.env.NEXT_PUBLIC_SITE_URL || ''}/blog/${post.slug}`
 
@@ -676,9 +676,9 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
 
           <section className="hero">
             <div
-              className={`hero-card ${post.featuredImage?.url ? 'has-image' : ''}`}
+              className={`hero-card ${typeof post.featuredImage !== 'number' && post.featuredImage?.url ? 'has-image' : ''}`}
               style={
-                post.featuredImage?.url
+                typeof post.featuredImage !== 'number' && post.featuredImage?.url
                   ? ({
                       '--hero-image': `url(${post.featuredImage.url})`,
                     } as React.CSSProperties)
@@ -693,7 +693,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
                     <span className="hero-pill">{formatDate(post.publishedDate)}</span>
                   )}
 
-                  <span className="hero-pill">{readingTime} min read</span>
+                  {/* <span className="hero-pill">{readingTime} min read</span> */}
                 </div>
 
                 <h1 className="hero-title">{post.title}</h1>
@@ -717,10 +717,10 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
               </div>
 
               <div className="author-stats">
-                <div className="stat-box">
+                {/* <div className="stat-box">
                   <strong>{readingTime}</strong>
                   <span>Min Read</span>
-                </div>
+                </div> */}
 
                 {/* <div className="stat-box">
                   <strong>{post.status === 'published' ? 'Live' : 'Draft'}</strong>
@@ -773,13 +773,13 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
               )}
             </article>
 
-            <aside className="right-tools">
+            {/* <aside className="right-tools">
               <div className="newsletter-card related-box">
                 <h3>Get new stories</h3>
                 <p>Subscribe and receive the latest articles directly in your inbox.</p>
                 <Link href="/subscribe">Subscribe</Link>
               </div>
-            </aside>
+            </aside> */}
           </main>
 
           <footer className="footer-nav">
@@ -795,7 +795,6 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
           </footer>
         </div>
       </>
-      )
     </>
   )
 }
