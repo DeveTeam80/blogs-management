@@ -12,12 +12,17 @@ const UserApprovals: CollectionConfig = {
     plural: 'User Approvals',
   },
 
+  defaultSort: '-createdAt',
+
   admin: {
     useAsTitle: 'email',
     defaultColumns: ['name', 'email'],
-    group: 'Notifications',
     components: {
       beforeListTable: ['@/components/UserApprovalNotifications#default'],
+    },
+    pagination: {
+      defaultLimit: 5,
+      limits: [5],
     },
   },
 
@@ -100,6 +105,30 @@ const UserApprovals: CollectionConfig = {
               `,
             })
           }
+        }
+        // Keep only latest 5 approval records
+        try {
+          const latestApprovals = await req.payload.find({
+            collection: 'user-approvals',
+            sort: '-createdAt',
+            limit: 100,
+            depth: 0,
+            overrideAccess: true,
+          })
+
+          const oldApprovals = latestApprovals.docs.slice(5)
+
+          await Promise.all(
+            oldApprovals.map((approval) =>
+              req.payload.delete({
+                collection: 'user-approvals',
+                id: approval.id,
+                overrideAccess: true,
+              }),
+            ),
+          )
+        } catch (err) {
+          console.error('USER APPROVAL CLEANUP ERROR ❌', err)
         }
       },
     ],

@@ -25,7 +25,7 @@ import { default as default_142eac51d028da83f92bdee45af3baf0 } from '@/component
 import { default as default_a57c6a823b3afaaec2d5debdf135e084 } from '@/components/ViewOnSiteButton'
 import { default as default_8ac5356ed74837f223bd20528549a6a4 } from '@/components/UserApprovalNotifications'
 import { default as default_380afaeea2d45f396e81f036010b9e99 } from '@/components/AfterLogin'
-import { default as default_0e94c64083b4f28fdaf8403da14f1d94 } from '@/components/NotificationRedDot'
+import { default as default_110d9332df0ee9edde8d82d0e9959b6f } from '@/components/FloatingApprovalCard'
 import { default as default_8a7ab0eb7ab5c511aba12e68480bfe5e } from '@/components/BeforeLogin'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
@@ -58,7 +58,7 @@ export const importMap = {
   "@/components/ViewOnSiteButton#default": default_a57c6a823b3afaaec2d5debdf135e084,
   "@/components/UserApprovalNotifications#default": default_8ac5356ed74837f223bd20528549a6a4,
   "@/components/AfterLogin#default": default_380afaeea2d45f396e81f036010b9e99,
-  "@/components/NotificationRedDot#default": default_0e94c64083b4f28fdaf8403da14f1d94,
+  "@/components/FloatingApprovalCard#default": default_110d9332df0ee9edde8d82d0e9959b6f,
   "@/components/BeforeLogin#default": default_8a7ab0eb7ab5c511aba12e68480bfe5e,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

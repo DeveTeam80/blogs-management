@@ -93,6 +93,14 @@ const Users: CollectionConfig = {
   },
 
   hooks: {
+    afterRead: [
+      async ({ doc }) => {
+        doc.roleDisplay = doc.role
+        doc.statusDisplay = doc.status
+
+        return doc
+      },
+    ],
     beforeChange: [
       async ({ data, operation, req }) => {
         const currentUser = req.user as any

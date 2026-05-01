@@ -23,7 +23,8 @@ export default buildConfig({
     components: {
       beforeLogin: ['@/components/BeforeLogin#default'],
       afterLogin: ['@/components/AfterLogin#default'],
-      afterNavLinks: ['@/components/NotificationRedDot#default'],
+
+      afterNavLinks: ['@/components/FloatingApprovalCard#default'],
     },
   },
 
