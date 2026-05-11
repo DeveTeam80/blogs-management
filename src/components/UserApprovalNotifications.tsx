@@ -15,19 +15,30 @@ export default function UserApprovalNotifications() {
   const [requests, setRequests] = useState<ApprovalRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [processingId, setProcessingId] = useState<string | number | null>(null)
+  const [activeIndex, setActiveIndex] = useState(0)
 
   const fetchRequests = async () => {
     try {
       const res = await fetch(
-        '/api/user-approvals?where[status][equals]=pending&sort=-createdAt&limit=20',
+        '/api/user-approvals?where[status][equals]=pending&sort=-createdAt&limit=10&depth=0',
         {
           credentials: 'include',
+          cache: 'no-store',
         },
       )
 
       const data = await res.json()
+      const docs = data?.docs || []
 
-      setRequests(data?.docs || [])
+      setRequests(docs)
+
+      if (docs.length === 0) {
+        setActiveIndex(0)
+      }
+
+      if (activeIndex >= docs.length && docs.length > 0) {
+        setActiveIndex(0)
+      }
     } catch (error) {
       console.error('Failed to fetch approval requests:', error)
     } finally {
@@ -37,7 +48,26 @@ export default function UserApprovalNotifications() {
 
   useEffect(() => {
     fetchRequests()
+
+    const fetchInterval = setInterval(() => {
+      fetchRequests()
+    }, 8000)
+
+    return () => clearInterval(fetchInterval)
   }, [])
+
+  useEffect(() => {
+    if (requests.length <= 1) return
+
+    const carouselInterval = setInterval(() => {
+      setActiveIndex((prev) => {
+        if (prev >= requests.length - 1) return 0
+        return prev + 1
+      })
+    }, 4000)
+
+    return () => clearInterval(carouselInterval)
+  }, [requests.length])
 
   const handleAction = async (approvalId: string | number, action: 'approved' | 'rejected') => {
     try {
@@ -60,7 +90,19 @@ export default function UserApprovalNotifications() {
         return
       }
 
-      setRequests((prev) => prev.filter((item) => item.id !== approvalId))
+      setRequests((prev) => {
+        const updated = prev.filter((item) => item.id !== approvalId)
+
+        if (activeIndex >= updated.length && updated.length > 0) {
+          setActiveIndex(updated.length - 1)
+        }
+
+        if (updated.length === 0) {
+          setActiveIndex(0)
+        }
+
+        return updated
+      })
     } catch (error) {
       console.error(error)
       alert('Something went wrong')
@@ -69,97 +111,128 @@ export default function UserApprovalNotifications() {
     }
   }
 
+  const activeRequest = requests[activeIndex]
+
   if (loading) {
     return (
-      <div style={styles.wrapper}>
-        <div style={styles.loadingBox}>Loading approval requests...</div>
-      </div>
+      <>
+        <div style={styles.wrapper}>
+          <div style={styles.loadingBox}>Loading approval requests...</div>
+        </div>
+
+        <div style={styles.allUsersHeader}>
+          <h2 style={styles.allUsersTitle}>All Users</h2>
+          <p style={styles.allUsersSubtitle}>Manage users, roles, and account status.</p>
+        </div>
+      </>
     )
   }
 
   return (
-    <div style={styles.wrapper}>
-      <div style={styles.header}>
-        <div>
-          <h2 style={styles.title}>User Approval Requests</h2>
-          <p style={styles.subtitle}>
-            Review new signup requests and approve or reject account access.
-          </p>
+    <>
+      <div style={styles.wrapper}>
+        <div style={styles.header}>
+          <div>
+            <h2 style={styles.title}>User Approval Requests</h2>
+            <p style={styles.subtitle}>
+              Review new signup requests and approve or reject account access.
+            </p>
+          </div>
+
+          {requests.length > 0 && <span style={styles.badge}>{requests.length} pending</span>}
         </div>
 
-        {requests.length > 0 && <span style={styles.badge}>{requests.length} pending</span>}
-      </div>
-
-      {requests.length === 0 ? (
-        <div style={styles.emptyBox}>
-          <div style={styles.emptyIcon}>✓</div>
-          <h3 style={styles.emptyTitle}>No pending requests</h3>
-          <p style={styles.emptyText}>New signup requests will appear here for admin review.</p>
-        </div>
-      ) : (
-        <div style={styles.cardList}>
-          {requests.map((request) => {
-            const isProcessing = processingId === request.id
-
-            return (
-              <div key={request.id} style={styles.card}>
-                <div style={styles.left}>
-                  <div style={styles.avatar}>
-                    {(request.name || request.email || 'U').charAt(0).toUpperCase()}
-                  </div>
-
-                  <div>
-                    <div style={styles.nameRow}>
-                      <h3 style={styles.name}>{request.name || 'New User'}</h3>
-                      <span style={styles.newBadge}>New</span>
+        {requests.length === 0 ? (
+          <div style={styles.emptyBox}>
+            <div style={styles.emptyIcon}>✓</div>
+            <h3 style={styles.emptyTitle}>No pending requests</h3>
+            <p style={styles.emptyText}>New signup requests will appear here for admin review.</p>
+          </div>
+        ) : (
+          <div>
+            <div style={styles.carouselWindow}>
+              {activeRequest && (
+                <div key={activeRequest.id} style={styles.card}>
+                  <div style={styles.left}>
+                    <div style={styles.avatar}>
+                      {(activeRequest.name || activeRequest.email || 'U').charAt(0).toUpperCase()}
                     </div>
 
-                    <p style={styles.email}>{request.email}</p>
+                    <div style={styles.userInfo}>
+                      <div style={styles.nameRow}>
+                        <h3 style={styles.name}>{activeRequest.name || 'New User'}</h3>
+                        <span style={styles.newBadge}>New</span>
+                      </div>
 
-                    <p style={styles.meta}>
-                      Requested access on{' '}
-                      {new Date(request.createdAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                      })}
-                    </p>
+                      <p style={styles.email}>{activeRequest.email}</p>
+
+                      <p style={styles.meta}>
+                        Requested access on{' '}
+                        {new Date(activeRequest.createdAt).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                        })}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div style={styles.actions}>
+                    <button
+                      type="button"
+                      disabled={processingId === activeRequest.id}
+                      onClick={() => handleAction(activeRequest.id, 'approved')}
+                      style={{
+                        ...styles.button,
+                        ...styles.approveButton,
+                        opacity: processingId === activeRequest.id ? 0.6 : 1,
+                      }}
+                    >
+                      {processingId === activeRequest.id ? 'Processing...' : 'Approve'}
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={processingId === activeRequest.id}
+                      onClick={() => handleAction(activeRequest.id, 'rejected')}
+                      style={{
+                        ...styles.button,
+                        ...styles.rejectButton,
+                        opacity: processingId === activeRequest.id ? 0.6 : 1,
+                      }}
+                    >
+                      Reject
+                    </button>
                   </div>
                 </div>
+              )}
+            </div>
 
-                <div style={styles.actions}>
+            {requests.length > 1 && (
+              <div style={styles.indicators}>
+                {requests.map((request, index) => (
                   <button
+                    key={request.id}
                     type="button"
-                    disabled={isProcessing}
-                    onClick={() => handleAction(request.id, 'approved')}
+                    aria-label={`Go to approval request ${index + 1}`}
+                    onClick={() => setActiveIndex(index)}
                     style={{
-                      ...styles.button,
-                      ...styles.approveButton,
-                      opacity: isProcessing ? 0.6 : 1,
+                      ...styles.indicator,
+                      ...(activeIndex === index ? styles.activeIndicator : {}),
                     }}
-                  >
-                    {isProcessing ? 'Processing...' : 'Approve'}
-                  </button>
-
-                  <button
-                    type="button"
-                    disabled={isProcessing}
-                    onClick={() => handleAction(request.id, 'rejected')}
-                    style={{
-                      ...styles.button,
-                      ...styles.rejectButton,
-                      opacity: isProcessing ? 0.6 : 1,
-                    }}
-                  >
-                    Reject
-                  </button>
-                </div>
+                  />
+                ))}
               </div>
-            )
-          })}
-        </div>
-      )}
-    </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div style={styles.allUsersHeader}>
+        <h2 style={styles.allUsersTitle}>All Users</h2>
+        <p style={styles.allUsersSubtitle}>Manage users, roles, and account status.</p>
+      </div>
+    </>
   )
 }
 
@@ -245,9 +318,8 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '14px',
   },
 
-  cardList: {
-    display: 'grid',
-    gap: '14px',
+  carouselWindow: {
+    overflow: 'hidden',
   },
 
   card: {
@@ -260,6 +332,7 @@ const styles: Record<string, React.CSSProperties> = {
     background: '#ffffff',
     border: '1px solid #e5e7eb',
     boxShadow: '0 10px 25px rgba(15, 23, 42, 0.05)',
+    animation: 'fadeIn 0.3s ease-in-out',
   },
 
   left: {
@@ -279,6 +352,10 @@ const styles: Record<string, React.CSSProperties> = {
     placeItems: 'center',
     fontWeight: 800,
     flexShrink: 0,
+  },
+
+  userInfo: {
+    minWidth: 0,
   },
 
   nameRow: {
@@ -339,5 +416,47 @@ const styles: Record<string, React.CSSProperties> = {
   rejectButton: {
     background: '#fee2e2',
     color: '#991b1b',
+  },
+
+  indicators: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: '7px',
+    marginTop: '16px',
+  },
+
+  indicator: {
+    width: '7px',
+    height: '7px',
+    padding: 0,
+    borderRadius: '999px',
+    border: 0,
+    background: '#cbd5e1',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+  },
+
+  activeIndicator: {
+    width: '22px',
+    background: '#111827',
+  },
+
+  allUsersHeader: {
+    margin: '8px 0 18px',
+    padding: '4px 0',
+  },
+
+  allUsersTitle: {
+    margin: 0,
+    fontSize: '22px',
+    fontWeight: 700,
+    color: '#111827',
+  },
+
+  allUsersSubtitle: {
+    margin: '6px 0 0',
+    fontSize: '14px',
+    color: '#6b7280',
   },
 }

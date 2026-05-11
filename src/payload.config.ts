@@ -10,7 +10,7 @@ import { Media } from './collections/Media'
 import Posts from './collections/posts'
 import { resendAdapter } from '@payloadcms/email-resend'
 import UserApprovals from './collections/UserApprovals'
-
+import './lib/keepItAlive'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
@@ -47,6 +47,10 @@ export default buildConfig({
   db: postgresAdapter({
     pool: {
       connectionString: process.env.DATABASE_URL || '',
+      max: 3, // limit connections
+      idleTimeoutMillis: 30000, // 30 seconds
+      connectionTimeoutMillis: 10000, // wait 10s before failing
+      allowExitOnIdle: true,
     },
     push: false,
   }),

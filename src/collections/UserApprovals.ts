@@ -17,13 +17,14 @@ const UserApprovals: CollectionConfig = {
   admin: {
     useAsTitle: 'email',
     defaultColumns: ['name', 'email'],
-    components: {
-      beforeListTable: ['@/components/UserApprovalNotifications#default'],
-    },
+    // components: {
+    //   beforeListTable: ['@/components/UserApprovalNotifications#default'],
+    // },
     pagination: {
       defaultLimit: 5,
       limits: [5],
     },
+    hidden: true,
   },
 
   access: {
@@ -83,7 +84,7 @@ const UserApprovals: CollectionConfig = {
 
           if (doc.status === 'approved') {
             await req.payload.sendEmail({
-              to: doc.email, //  doc.email use later on development phase
+              to: 'qusairang86@gmail.com', //  doc.email use later on development phase
               subject: 'Account Approved',
               html: `
                 <h2>Account Approved</h2>
@@ -97,7 +98,7 @@ const UserApprovals: CollectionConfig = {
 
           if (doc.status === 'rejected') {
             await req.payload.sendEmail({
-              to: doc.email, //  doc.email use later on development phase
+              to: 'qusairang86@gmail.com', //  doc.email use later on development phase
               subject: 'Account Rejected',
               html: `
                 <h2>Account Rejected</h2>

@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     const resetLink = `${process.env.NEXT_PUBLIC_SITE_URL}/reset-password?token=${resetToken}`
 
     await payload.sendEmail({
-      to: user.email, // hardcoded for dev — change to user.email in production
+      to: 'qusairang86@gmail.com', // hardcoded for dev — change to user.email in production
       subject: 'Reset your password',
       html: `
         <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 40px 24px; color: #333;">

@@ -37,6 +37,17 @@ export const Posts: CollectionConfig = {
           data.publishedDate = new Date().toISOString()
         }
 
+        // Auto-generate slug from title
+        if (data.title) {
+          data.slug = data.title
+            .toLowerCase()
+            .trim()
+            .replace(/[^a-z0-9\s-]/g, '') // remove non-alphanumeric except spaces and hyphens
+            .replace(/\s+/g, '-') // replace spaces with hyphens
+            .replace(/-+/g, '-') // remove consecutive hyphens
+            .replace(/^-|-$/g, '') // remove leading/trailing hyphens
+        }
+
         return data
       },
     ],
@@ -126,6 +137,10 @@ export const Posts: CollectionConfig = {
       type: 'text',
       required: true,
       unique: true,
+      admin: {
+        readOnly: true,
+        description: 'Auto-generated from title.',
+      },
     },
 
     {

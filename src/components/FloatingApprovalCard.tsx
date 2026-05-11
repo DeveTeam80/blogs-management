@@ -102,6 +102,7 @@ export default function FloatingApprovalCard() {
   // Hide floating card on User Approvals page
   if (
     pathname?.startsWith('/admin/collections/user-approvals') ||
+    pathname?.startsWith('/admin/collections/user') ||
     pathname?.startsWith('/admin/collections/posts')
   ) {
     return null
@@ -175,9 +176,9 @@ export default function FloatingApprovalCard() {
           </button>
         </div>
 
-        <a href="/admin/collections/user-approvals" style={styles.link}>
+        {/* <a href="/admin/collections/user-approvals" style={styles.link}>
           View all approval requests →
-        </a>
+        </a> */}
       </div>
     </div>,
     document.body,

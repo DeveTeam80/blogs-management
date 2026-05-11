@@ -95,16 +95,21 @@ function renderContent(content: any): string {
 
 function getAuthorName(author: any) {
   if (!author) return 'Unknown Author'
-  if (typeof author === 'object') return author.name || author.email || 'Unknown Author'
+  if (typeof author === 'object') {
+    if (author.email === 'deleted@system.local') return 'Former Author'
+    return author.name || author.email || 'Unknown Author'
+  }
   return 'Unknown Author'
 }
 
 function getAuthorEmail(author: any) {
   if (!author) return ''
-  if (typeof author === 'object') return author.email || ''
+  if (typeof author === 'object') {
+    if (author.email === 'deleted@system.local') return ''
+    return author.email || ''
+  }
   return ''
 }
-
 export default async function BlogDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const post = await getPost(slug)

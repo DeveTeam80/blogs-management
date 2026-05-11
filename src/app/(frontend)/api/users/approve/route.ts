@@ -75,7 +75,7 @@ export async function GET(req: NextRequest) {
              <p>Unfortunately, your account request has been declined.</p>`
 
       await payload.sendEmail({
-        to: user.email, // user.email will work after resend domain verification change EMAIL_USER to noreply@yourdomain.com, and then user.email will work for any recipient.
+        to: 'qusairang86@gmail.com', // user.email will work after resend domain verification change EMAIL_USER to noreply@yourdomain.com, and then user.email will work for any recipient.
         subject,
         html,
       })

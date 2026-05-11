@@ -179,6 +179,9 @@ export interface Media {
 export interface Post {
   id: number;
   title: string;
+  /**
+   * Auto-generated from title.
+   */
   slug: string;
   /**
    * Short summary shown on blog cards and blog detail page.

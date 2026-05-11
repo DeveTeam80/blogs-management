@@ -30,7 +30,45 @@ const nonMasterUsersOnly = (currentUserId?: string | number): Where => {
     },
   }
 }
+async function assignToGhost(req: any, postDocs: any[]) {
+  const ghostUsers = await req.payload.find({
+    collection: 'users',
+    where: { email: { equals: 'deleted@system.local' } },
+    overrideAccess: true,
+    limit: 1,
+  })
 
+  let ghostId: number
+
+  if (ghostUsers.totalDocs === 0) {
+    const ghost = await req.payload.create({
+      collection: 'users',
+      data: {
+        email: 'deleted@system.local',
+        password: require('crypto').randomBytes(32).toString('hex'),
+      } as any,
+      overrideAccess: true,
+    })
+    await req.payload.update({
+      collection: 'users',
+      id: ghost.id as number,
+      data: { status: 'rejected' } as any,
+      overrideAccess: true,
+    })
+    ghostId = ghost.id as number
+  } else {
+    ghostId = ghostUsers.docs[0].id as number
+  }
+
+  for (const post of postDocs) {
+    await req.payload.update({
+      collection: 'posts',
+      id: post.id,
+      data: { author: ghostId } as any,
+      overrideAccess: true,
+    })
+  }
+}
 const Users: CollectionConfig = {
   slug: 'users',
   auth: true,
@@ -89,6 +127,9 @@ const Users: CollectionConfig = {
       }
 
       return filter
+    },
+    components: {
+      beforeListTable: ['@/components/UserApprovalNotifications#default'],
     },
   },
 
@@ -159,7 +200,7 @@ const Users: CollectionConfig = {
     afterChange: [
       async ({ doc, previousDoc, req, operation }) => {
         const currentUser = req.user as any
-        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
         const loginUrl = `${siteUrl}/admin/login`
 
         /**
@@ -178,7 +219,7 @@ const Users: CollectionConfig = {
             await req.payload.sendEmail({
               // For development with Resend testing, keep your own email
               // In production after domain verification, use: to: doc.email
-              to: doc.email,
+              to: 'qusairang86@gmail.com',
               subject: 'Your Blog CMS Account Has Been Created',
               html: `
             <div style="font-family:Arial,sans-serif;background:#f4f6f8;padding:24px;">
@@ -263,7 +304,7 @@ const Users: CollectionConfig = {
 
           try {
             await req.payload.sendEmail({
-              to: doc.email, // For development with Resend testing, keep your own email. In production after domain verification, use: to: doc.email
+              to: 'qusairang86@gmail.com', // For development with Resend testing, keep your own email. In production after domain verification, use: to: doc.email
               subject: 'New User Signup Approval Required',
               html: `
             <div style="font-family:Arial,sans-serif;background:#f4f6f8;padding:24px;">
@@ -336,7 +377,7 @@ const Users: CollectionConfig = {
             await req.payload.sendEmail({
               // For development with Resend testing, keep your own email
               // In production after domain verification, use: to: doc.email
-              to: doc.email,
+              to: 'qusairang86@gmail.com',
               subject: 'Account Approved',
               html: `
             <div style="font-family:Arial,sans-serif;background:#f4f6f8;padding:24px;">
@@ -391,7 +432,7 @@ const Users: CollectionConfig = {
             await req.payload.sendEmail({
               // For development with Resend testing, keep your own email
               // In production after domain verification, use: to: doc.email
-              to: doc.email,
+              to: 'qusairang86@gmail.com',
               subject: 'Account Rejected',
               html: `
             <div style="font-family:Arial,sans-serif;background:#f4f6f8;padding:24px;">
@@ -427,6 +468,77 @@ const Users: CollectionConfig = {
             console.error('REJECTED EMAIL ERROR ❌')
             console.error(err)
           }
+        }
+      },
+    ],
+    afterDelete: [
+      async ({ doc, req }) => {
+        try {
+          // 1. Delete pending approvals
+          const approvals = await req.payload.find({
+            collection: 'user-approvals',
+            where: {
+              and: [{ userId: { equals: doc.id } }, { status: { equals: 'pending' } }],
+            },
+            overrideAccess: true,
+            limit: 100,
+          })
+
+          for (const approval of approvals.docs) {
+            await req.payload.delete({
+              collection: 'user-approvals',
+              id: approval.id,
+              overrideAccess: true,
+            })
+          }
+
+          // 2. Handle orphaned posts
+          const posts = await req.payload.find({
+            collection: 'posts',
+            where: { author: { equals: doc.id } },
+            overrideAccess: true,
+            limit: 1000,
+          })
+
+          if (posts.totalDocs === 0) return
+
+          const deletedBy = req.user as any
+          const isSelfDelete = deletedBy?.id === doc.id
+
+          if (isSelfDelete) {
+            // Self-delete: check if reassignTo was passed via context
+            const reassignTo = (req as any).context?.reassignTo as number | null
+
+            if (reassignTo) {
+              // Reassign to chosen user
+              for (const post of posts.docs) {
+                await req.payload.update({
+                  collection: 'posts',
+                  id: post.id,
+                  data: { author: reassignTo } as any,
+                  overrideAccess: true,
+                })
+              }
+            } else {
+              // No reassign — use ghost user
+              await assignToGhost(req, posts.docs)
+            }
+          } else {
+            // Admin/master-admin deleted the user — assign to them
+            const adminId = deletedBy?.id as number
+            for (const post of posts.docs) {
+              await req.payload.update({
+                collection: 'posts',
+                id: post.id,
+                data: { author: adminId } as any,
+                overrideAccess: true,
+              })
+            }
+          }
+
+          console.log(`Handled ${posts.totalDocs} posts for deleted user ${doc.id}`)
+        } catch (err) {
+          console.error('afterDelete hook failed:', err)
         }
       },
     ],
