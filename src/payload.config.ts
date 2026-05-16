@@ -9,6 +9,7 @@ import Users from './collections/Users'
 import { Media } from './collections/Media'
 import Posts from './collections/posts'
 import { resendAdapter } from '@payloadcms/email-resend'
+import { cloudinaryStorage } from 'payload-cloudinary'
 import UserApprovals from './collections/UserApprovals'
 import './lib/keepItAlive'
 const filename = fileURLToPath(import.meta.url)
@@ -23,8 +24,11 @@ export default buildConfig({
     components: {
       beforeLogin: ['@/components/BeforeLogin#default'],
       afterLogin: ['@/components/AfterLogin#default'],
-
-      afterNavLinks: ['@/components/FloatingApprovalCard#default'],
+      afterNavLinks: [
+        '@/components/HideCloudinaryMediaInfo#default',
+        '@/components/FloatingApprovalCard#default',
+        '@/components/DeleteAccountLink#default',
+      ],
     },
   },
 
@@ -55,5 +59,16 @@ export default buildConfig({
     push: false,
   }),
   sharp,
-  plugins: [],
+  plugins: [
+    cloudinaryStorage({
+      config: {
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
+        api_key: process.env.CLOUDINARY_API_KEY!,
+        api_secret: process.env.CLOUDINARY_API_SECRET!,
+      },
+      collections: {
+        media: true,
+      },
+    }),
+  ],
 })

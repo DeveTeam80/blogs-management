@@ -221,6 +221,31 @@ export const Posts: CollectionConfig = {
         },
       ],
     },
+    {
+      name: 'featured',
+      type: 'checkbox',
+      defaultValue: false,
+      label: 'Mark as Featured',
+      admin: {
+        description: 'Featured post appears highlighted on the blog page.',
+        position: 'sidebar',
+      },
+      access: {
+        // Anyone can read
+        read: () => true,
+        // On create: any logged in user can set it
+        create: ({ req }) => !!req.user,
+        // On update: user can only update their own post's featured field
+        // admin/master-admin can update any
+        update: ({ req }) => {
+          const user = req.user as any
+          if (!user) return false
+          if (user.role === 'admin' || user.role === 'master-admin') return true
+          // normal user — access is checked at collection level (they can only edit own posts)
+          return true
+        },
+      },
+    },
   ],
 }
 

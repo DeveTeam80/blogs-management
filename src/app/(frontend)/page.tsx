@@ -1,8 +1,7 @@
 import { headers as getHeaders } from 'next/headers.js'
-import Image from 'next/image'
+import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
 import React from 'react'
-import { fileURLToPath } from 'url'
 
 import config from '@/payload.config'
 import './styles.css'
@@ -11,45 +10,27 @@ export default async function HomePage() {
   const headers = await getHeaders()
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
+
   const { user } = await payload.auth({ headers })
 
-  const fileURL = `vscode://file/${fileURLToPath(import.meta.url)}`
+  // If user is already logged in, directly redirect to Payload admin
+  if (user) {
+    redirect(payloadConfig.routes.admin)
+  }
 
   return (
     <div className="home">
       <div className="content">
-        {/* <picture>
-          <source srcSet="https://raw.githubusercontent.com/payloadcms/payload/3.x/packages/ui/src/assets/payload-favicon.svg" />
-          <Image
-            alt="Payload Logo"
-            height={65}
-            src="https://raw.githubusercontent.com/payloadcms/payload/3.x/packages/ui/src/assets/payload-favicon.svg"
-            width={65}
-          />
-        </picture> */}
-        {!user && <h1>Welcome to Blog Management System</h1>}
-        {user && <h1>Welcome back, {user.email}</h1>}
+        <h1>Welcome to Blog Management System</h1>
 
         <div className="links">
-          {user ? (
-            <a
-              className="admin"
-              href={payloadConfig.routes.admin}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              Go to admin panel
-            </a>
-          ) : (
-            <a
-              className="docs"
-              href={`${process.env.NEXT_PUBLIC_SITE_URL}/signup`}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              Signup
-            </a>
-          )}
+          <a
+            className="docs"
+            href={`${process.env.NEXT_PUBLIC_SITE_URL}/signup`}
+            rel="noopener noreferrer"
+          >
+            Signup
+          </a>
         </div>
       </div>
     </div>

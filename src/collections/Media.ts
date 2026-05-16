@@ -14,6 +14,7 @@ export const Media: CollectionConfig = {
       return user?.role === 'master-admin'
     },
   },
+
   fields: [
     {
       name: 'alt',
