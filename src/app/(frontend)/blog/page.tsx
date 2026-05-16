@@ -10,6 +10,7 @@ async function getPosts() {
     sort: '-publishedDate',
     depth: 1,
     limit: 50,
+    overrideAccess: true,
   })
   return posts.docs
 }
@@ -347,15 +348,15 @@ export default async function BlogPage() {
                   className="blog-card"
                   style={{ animationDelay: `${i * 0.06}s` }}
                 >
-                  {post.featuredImage?.url ? (
-                    <img
-                      className="blog-card-img"
-                      src={post.featuredImage.url}
-                      alt={post.featuredImage?.alt || post.title}
-                    />
-                  ) : (
-                    <div className="blog-card-placeholder">✦</div>
-                  )}
+                  {(() => {
+                    const img = post.featuredImage
+                    const src = img?.cloudinary?.secure_url || img?.thumbnailURL || null
+                    return src ? (
+                      <img className="blog-card-img" src={src} alt={img?.alt || post.title} />
+                    ) : (
+                      <div className="blog-card-placeholder">✦</div>
+                    )
+                  })()}
 
                   <div className="blog-card-body">
                     <span className="blog-card-date">
