@@ -278,7 +278,7 @@ const Users: CollectionConfig = {
         //   - Self-delete: by /api/users/delete-account route (transfers then deletes)
         //   - Admin-delete: by AdminTransferDeleteModal component (transfers then calls DELETE /api/users/:id)
         //
-        // This hook now only cleans up UserApprovals for the deleted user.
+        // This hook now only cleans up UserApprovals for the deleted user
         try {
           const approvals = await req.payload.find({
             collection: 'user-approvals',
