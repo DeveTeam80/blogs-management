@@ -672,9 +672,6 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
                 <Link href="/blog" className="blog-nav-link">
                   All Posts
                 </Link>
-                <a href={`/admin/collections/posts/${post.id}`} className="blog-nav-link">
-                  Edit
-                </a>
               </div>
             </div>
           </nav>
@@ -792,10 +789,6 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
               <Link href="/blog" className="footer-link">
                 ← Back to all stories
               </Link>
-
-              <a href={`/admin/collections/posts/${post.id}`} className="footer-edit">
-                Edit this post →
-              </a>
             </div>
           </footer>
         </div>

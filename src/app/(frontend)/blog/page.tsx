@@ -368,10 +368,8 @@ export default async function BlogPage() {
                       <span className="blog-card-author">
                         by{' '}
                         {typeof post.author === 'object' && post.author !== null
-                          ? post.author.email === 'deleted@system.local'
-                            ? 'Former Author'
-                            : post.author.email
-                          : 'Unknown'}{' '}
+                          ? (post.author as any).name || (post.author as any).email || 'Unknown'
+                          : 'Unknown'}
                       </span>
                     )}
                     <span className="blog-card-read">Read story →</span>
