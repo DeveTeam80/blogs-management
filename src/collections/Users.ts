@@ -132,7 +132,7 @@ const Users: CollectionConfig = {
         ) {
           try {
             await req.payload.sendEmail({
-              to: 'qusairang86@gmail.com', // dev: own email | prod: doc.email
+              to: doc.email, // dev: own email | prod: doc.email
               subject: 'Your Blog CMS Account Has Been Created',
               html: `
                 <div style="font-family:Arial,sans-serif;background:#f4f6f8;padding:24px;">
@@ -179,7 +179,7 @@ const Users: CollectionConfig = {
 
           try {
             await req.payload.sendEmail({
-              to: 'qusairang86@gmail.com', // dev: own email | prod: admin email
+              to: doc.email, // dev: own email | prod: admin email
               subject: 'New User Signup Approval Required',
               html: `
                 <div style="font-family:Arial,sans-serif;background:#f4f6f8;padding:24px;">
@@ -216,7 +216,7 @@ const Users: CollectionConfig = {
         ) {
           try {
             await req.payload.sendEmail({
-              to: 'qusairang86@gmail.com', // dev: own email | prod: doc.email
+              to: doc.email, // dev: own email | prod: doc.email
               subject: 'Account Approved',
               html: `
                 <div style="font-family:Arial,sans-serif;background:#f4f6f8;padding:24px;">
@@ -248,7 +248,7 @@ const Users: CollectionConfig = {
         ) {
           try {
             await req.payload.sendEmail({
-              to: 'qusairang86@gmail.com', // dev: own email | prod: doc.email
+              to: doc.email, // dev: own email | prod: doc.email
               subject: 'Account Rejected',
               html: `
                 <div style="font-family:Arial,sans-serif;background:#f4f6f8;padding:24px;">
