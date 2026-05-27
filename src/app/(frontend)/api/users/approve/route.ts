@@ -47,37 +47,38 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Token expired' }, { status: 403 })
     }
 
-    // Direct DB update — completely bypasses Payload access control
-    const newStatus = action === 'approve' ? 'approved' : 'rejected'
+    // Handle reject — delete user and user-approval record, skip email
+    if (action === 'reject') {
+      await payload.delete({
+        collection: 'users',
+        id: Number(userId),
+        overrideAccess: true,
+      })
+      // afterDelete on Users auto-cleans the user-approvals record
 
+      return NextResponse.json({
+        success: true,
+        message: 'User rejected and deleted',
+      })
+    }
+
+    // Handle approve — update status and send email
     await db
       .update(usersTable)
       .set({
-        status: newStatus,
+        status: 'approved',
         approvalToken: null,
         approvalTokenExpiry: null,
       })
       .where(eq(usersTable.id, Number(userId)))
 
-    // Send notification email
     try {
-      const subject =
-        newStatus === 'approved'
-          ? 'Your account has been approved!'
-          : 'Your account request was declined'
-
-      const html =
-        newStatus === 'approved'
-          ? `<h2>Welcome!</h2>
-             <p>Your account has been approved. You can now log in:</p>
-             <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/admin">Log in here</a></p>`
-          : `<h2>Account Update</h2>
-             <p>Unfortunately, your account request has been declined.</p>`
-
       await payload.sendEmail({
-        to: user.email, // user.email will work after resend domain verification change EMAIL_USER to noreply@yourdomain.com, and then user.email will work for any recipient.
-        subject,
-        html,
+        to: user.email,
+        subject: 'Your account has been approved!',
+        html: `<h2>Welcome!</h2>
+               <p>Your account has been approved. You can now log in:</p>
+               <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/admin">Log in here</a></p>`,
       })
     } catch (emailErr) {
       console.error('Email send failed:', emailErr)
@@ -85,7 +86,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `User ${newStatus} successfully`,
+      message: 'User approved successfully',
     })
   } catch (error: any) {
     console.error('Approval error:', error)

@@ -71,17 +71,34 @@ const UserApprovals: CollectionConfig = {
           doc.status !== previousDoc?.status &&
           (doc.status === 'approved' || doc.status === 'rejected')
         ) {
-          await req.payload.update({
-            collection: 'users',
-            id: doc.userId,
-            data: {
-              status: doc.status,
-              approvalToken: null,
-              approvalTokenExpiry: null,
-            },
-            overrideAccess: true,
-          })
+          if (doc.status === 'rejected') {
+            // Delete user from users table — afterDelete hook will cleanup this approval record too
+            try {
+              await req.payload.delete({
+                collection: 'users',
+                id: doc.userId,
+                overrideAccess: true,
+              })
+            } catch (err) {
+              console.error('USER DELETE ON REJECT ERROR ❌', err)
+            }
+            return // skip cleanup below, record will be deleted by afterDelete
+          }
+
+          if (doc.status === 'approved') {
+            await req.payload.update({
+              collection: 'users',
+              id: doc.userId,
+              data: {
+                status: doc.status,
+                approvalToken: null,
+                approvalTokenExpiry: null,
+              },
+              overrideAccess: true,
+            })
+          }
         }
+
         // Keep only latest 5 approval records
         try {
           const latestApprovals = await req.payload.find({
