@@ -84,7 +84,7 @@ const UserApprovals: CollectionConfig = {
 
           if (doc.status === 'approved') {
             await req.payload.sendEmail({
-              to: 'qusairang86@gmail.com', //  doc.email use later on development phase
+              to: doc.email, //  doc.email use later on development phase
               subject: 'Account Approved',
               html: `
                 <h2>Account Approved</h2>
@@ -98,7 +98,7 @@ const UserApprovals: CollectionConfig = {
 
           if (doc.status === 'rejected') {
             await req.payload.sendEmail({
-              to: 'qusairang86@gmail.com', //  doc.email use later on development phase
+              to: doc.email, //  doc.email use later on development phase
               subject: 'Account Rejected',
               html: `
                 <h2>Account Rejected</h2>
