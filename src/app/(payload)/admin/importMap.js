@@ -29,6 +29,7 @@ import { default as default_380afaeea2d45f396e81f036010b9e99 } from '@/component
 import { default as default_46dc72fe56f66656c4812a40de8f7554 } from '@/components/HideCloudinaryMediaInfo'
 import { default as default_110d9332df0ee9edde8d82d0e9959b6f } from '@/components/FloatingApprovalCard'
 import { default as default_49cac8b0ba11c490d707c0bc0ecb4213 } from '@/components/DeleteAccountLink'
+import { default as default_924567bf93f91a4aca320a20804da9fd } from '@/components/HideDocId'
 import { default as default_8a7ab0eb7ab5c511aba12e68480bfe5e } from '@/components/BeforeLogin'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
@@ -65,6 +66,7 @@ export const importMap = {
   "@/components/HideCloudinaryMediaInfo#default": default_46dc72fe56f66656c4812a40de8f7554,
   "@/components/FloatingApprovalCard#default": default_110d9332df0ee9edde8d82d0e9959b6f,
   "@/components/DeleteAccountLink#default": default_49cac8b0ba11c490d707c0bc0ecb4213,
+  "@/components/HideDocId#default": default_924567bf93f91a4aca320a20804da9fd,
   "@/components/BeforeLogin#default": default_8a7ab0eb7ab5c511aba12e68480bfe5e,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

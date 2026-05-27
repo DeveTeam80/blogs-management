@@ -28,6 +28,7 @@ export default buildConfig({
         '@/components/HideCloudinaryMediaInfo#default',
         '@/components/FloatingApprovalCard#default',
         '@/components/DeleteAccountLink#default',
+        '@/components/HideDocId#default',
       ],
     },
   },
