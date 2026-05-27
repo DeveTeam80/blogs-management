@@ -81,31 +81,6 @@ const UserApprovals: CollectionConfig = {
             },
             overrideAccess: true,
           })
-
-          if (doc.status === 'approved') {
-            await req.payload.sendEmail({
-              to: doc.email, //  doc.email use later on development phase
-              subject: 'Account Approved',
-              html: `
-                <h2>Account Approved</h2>
-                <p>Your account has been approved. You can now login.</p>
-                <a href="${process.env.NEXT_PUBLIC_SITE_URL}/login">
-                  Login
-                </a>
-              `,
-            })
-          }
-
-          if (doc.status === 'rejected') {
-            await req.payload.sendEmail({
-              to: doc.email, //  doc.email use later on development phase
-              subject: 'Account Rejected',
-              html: `
-                <h2>Account Rejected</h2>
-                <p>Your account request has been rejected.</p>
-              `,
-            })
-          }
         }
         // Keep only latest 5 approval records
         try {
